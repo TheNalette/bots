@@ -1,0 +1,57 @@
+const { Client, GatewayIntentBits } = require('discord.js');
+
+// Создаем нового клиента Discord с нужными разрешениями
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ]
+});
+
+// Список возможных завтраков
+const breakfasts = [
+    "вкусную яичницу с беконом",
+    "сырники со сметаной",
+    "овсяную кашу с фруктами",
+    "блинчики с джемом",
+    "бутерброды с авокадо",
+    "омлет с сыром и помидорами",
+    "йогурт с бананоми медом",
+    "вафли с кленовым сиропом"
+];
+
+// Событие готовности бота
+client.once('ready', () => {
+    console.log(`Бот ${client.user.tag} готов к работе!`);
+});
+
+// Обработка сообщений
+client.on('messageCreate', async message => {
+    // Игнорируем сообщения от ботов
+    if (message.author.bot) return;
+
+    // Команда !завтрак
+    if (message.content.startsWith('!завтрак')) {
+        const mentionedUser = message.mentions.users.first();
+        if (!mentionedUser) {
+            return message.reply('Укажите пользователя, для которого хотите приготовить завтрак!');
+        }
+
+        const breakfast = breakfasts[Math.floor(Math.random() * breakfasts.length)];
+        message.channel.send(`🍳 ${message.author} приготовил(а) для ${mentionedUser} ${breakfast}! Приятного аппетита! ☕️`);
+    }
+
+    // Команда !добавить_завтрак
+    if (message.content.startsWith('!добавить_завтрак')) {
+        const newBreakfast = message.content.slice('!добавить_завтрак'.length).trim();
+        if (newBreakfast) {
+            breakfasts.push(newBreakfast);
+            message.reply(`✅ Новый вариант завтрака '${newBreakfast}' добавлен в список!`);
+        } else {
+            message.reply('Укажите описание завтрака!');
+        }
+    }
+});
+// Обязательно оберните токен в одинарные или двойные кавычки
+client.login('');
